@@ -192,33 +192,36 @@
         dailyCalorieGoalInput.addEventListener('blur', function () {
             dailyCalorieGoal = parseInt(dailyCalorieGoalInput.value) || 0;
             updateCalorieInfo();
-            // Show inputs for calories, sugar, fat, and protein after entering daily calorie goal
-            foodNameInput.style.display = 'block';
-            caloriesInput.style.display = 'block';
-            proteinInput.style.display = 'block';
-            sugarInput.style.display = 'block';
-            fatInput.style.display = 'block';
         });
 
         // Handle daily protein goal input field blur event
         dailyProteinGoalInput.addEventListener('blur', function () {
             dailyProteinGoal = parseInt(dailyProteinGoalInput.value) || 0;
+            updateCalorieInfo();
         });
 
         // Handle daily sugar goal input field blur event
         dailySugarGoalInput.addEventListener('blur', function () {
             dailySugarGoal = parseInt(dailySugarGoalInput.value) || 0;
+            updateCalorieInfo();
         });
 
         // Handle daily fat goal input field blur event
         dailyFatGoalInput.addEventListener('blur', function () {
             dailyFatGoal = parseInt(dailyFatGoalInput.value) || 0;
+            updateCalorieInfo();
         });
 
         // Handle "Add to List" button click
         addToListButton.addEventListener('click', function () {
             handleManualEntry();
             resetCalorieInputs();
+
+            foodNameInput.style.display = 'block';
+            caloriesInput.style.display = 'block';
+            proteinInput.style.display = 'block';
+            sugarInput.style.display = 'block';
+            fatInput.style.display = 'block';
         });
 
         // Function to reset calorie inputs and hide daily goal inputs
