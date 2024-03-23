@@ -61,6 +61,23 @@
       font-size: 18px;
       margin-top: 20px;
     }
+
+    #fatInfo {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    #sugarInfo {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    #proteinInfo {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    
   </style>
 </head>
 <body>
@@ -71,11 +88,11 @@
     <input type="number" id="dailyProteinGoal" placeholder="Enter your daily protein goal">
     <input type="number" id="dailySugarGoal" placeholder="Enter your daily sugar goal">
     <input type="number" id="dailyFatGoal" placeholder="Enter your daily fat goal">
+    <input type="text" id="foodName" placeholder="Enter food name">
+    <input type="number" id="calories" placeholder="Enter calories">
     <input type="number" id="protein" placeholder="Enter protein amount">
     <input type="number" id="sugar" placeholder="Enter sugar amount">
     <input type="number" id="fat" placeholder="Enter fat amount">
-    <input type="text" id="foodName" placeholder="Enter food name">
-    <input type="number" id="calories" placeholder="Enter calories">
     <button id="scanQR">Scan QR Code</button>
     <div id="qrScanner" style="display: none;">
       <!-- This will be the container for the QR scanner -->
@@ -85,8 +102,8 @@
     <ul id="foodList"></ul>
     <div id="calorieInfo"></div>
     <div id="fatInfo"></div>
-<div id="sugarInfo"></div>
-<div id="proteinInfo"></div>
+    <div id="sugarInfo"></div>
+    <div id="proteinInfo"></div>
 
 
   </div>
@@ -111,11 +128,11 @@
 
     // Variable to store the daily calorie goal
     let totalConsumedFat = 0;
-let totalConsumedSugar = 0;
-let totalConsumedProtein = 0;
-let dailyFatGoal = 0;
-let dailySugarGoal = 0;
-let dailyProteinGoal = 0;
+    let totalConsumedSugar = 0;
+    let totalConsumedProtein = 0;
+    let dailyFatGoal = 0;
+    let dailySugarGoal = 0;
+    let dailyProteinGoal = 0;
 
 
     // Variable to store the total consumed calories
@@ -229,9 +246,7 @@ let dailyProteinGoal = 0;
     dailyFatGoalInput.value = '';
     dailyFatGoalInput.style.display = 'none';
     proteinInput.value = '';
-   
     sugarInput.value = '';
-
     fatInput.value = '';
 }
 
