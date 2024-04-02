@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calorie Tracker</title>
   <style>
-    body {
+     body {
       font-family: Arial, sans-serif;
       background-color: #f5f5f5;
       margin: 0;
@@ -21,6 +21,9 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
       text-align: center;
+      width: 400px; /* Fixed width */
+      height: auto; /* Adjust height as needed */
+      overflow-y: auto; /* Add scroll bar if content exceeds height */
     }
     h1 {
       margin-top: 0;
@@ -77,7 +80,22 @@
       margin-top: 20px;
     }
 
-    
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #4caf50;
+      width: 100%;
+      text-overflow: ellipsis; /* Optional for long text */
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -93,17 +111,32 @@
     <input type="number" id="protein" placeholder="Enter protein amount" style="display: none;">
     <input type="number" id="sugar" placeholder="Enter sugar amount" style="display: none;">
     <input type="number" id="fat" placeholder="Enter fat amount" style="display: none;">
-    <button id="scanQR">Scan QR Code</button>
+    <input type="number" id="quantity" placeholder="Enter quantity" style="display: none;">
+    <button id="scanQR" style="display: none">Scan QR Code</button>
     <div id="qrScanner" style="display: none;">
       <!-- This will be the container for the QR scanner -->
       <video id="scannerVideo" playsinline></video>
     </div>
-    <button id="addToList">Add to List</button>
-    <ul id="foodList"></ul>
-    <div id="calorieInfo"></div>
-    <div id="fatInfo"></div>
-    <div id="sugarInfo"></div>
-    <div id="proteinInfo"></div>
+    <button id="showlist" disabled>Start List</button>
+    <button id="addToList" style="display: none">Add to List</button>
+    <button id="toggleList" style="display: none">Toggle List</button>
+    <ul id="foodList" style="display: none;"></ul>
+    <div id="calorieInfo" class="progress-bar">
+      <div id="calorieInfoFill" class="progress-bar-fill">Calories:</div>
+     <!--  <div id="calorieInfoText" class="progress-bar-text"></div> -->
+    </div>
+    <div id="proteinInfo" class="progress-bar">
+      <div id="proteinInfoFill" class="progress-bar-fill">Protein:</div>
+      <!-- <div id="proteinInfoText" class="progress-bar-text"></div> -->
+    </div>
+    <div id="sugarInfo" class="progress-bar">
+      <div id="sugarInfoFill" class="progress-bar-fill">Sugar:</div>
+      <!-- <div id="sugarInfoText" class="progress-bar-text"></div> -->
+    </div>
+    <div id="fatInfo" class="progress-bar">
+      <div id="fatInfoFill" class="progress-bar-fill">Fat:</div>
+     <!--  <div id="fatInfoText" class="progress-bar-text"></div> -->
+    </div>
   </div>
 
   <script>
@@ -116,16 +149,21 @@
         const proteinInput = document.getElementById('protein');
         const sugarInput = document.getElementById('sugar');
         const fatInput = document.getElementById('fat');
+        const quantity = document.getElementById('quantity');
         const foodNameInput = document.getElementById('foodName');
         const caloriesInput = document.getElementById('calories');
         const scanQRButton = document.getElementById('scanQR');
         const qrScannerContainer = document.getElementById('qrScanner');
         const addToListButton = document.getElementById('addToList');
+        const showListButton = document.getElementById('showlist');
+        const toggleButton = document.getElementById('toggleList');
         const foodList = document.getElementById('foodList');
         const calorieInfo = document.getElementById('calorieInfo');
         const fatInfo = document.getElementById('fatInfo');
         const sugarInfo = document.getElementById('sugarInfo');
         const proteinInfo = document.getElementById('proteinInfo');
+
+        let scanning = false;
 
         // Variable to store the daily calorie goal
         let totalConsumedFat = 0;
@@ -141,27 +179,66 @@
 
         // Function to update the calorie information
         function updateCalorieInfo() {
-            calorieInfo.textContent = `Total consumed calories: ${totalConsumedCalories} / ${dailyCalorieGoal}`;
-            fatInfo.textContent = `Total consumed fat: ${totalConsumedFat} / ${dailyFatGoal}`;
-            sugarInfo.textContent = `Total consumed sugar: ${totalConsumedSugar} / ${dailySugarGoal}`;
-            proteinInfo.textContent = `Total consumed protein: ${totalConsumedProtein} / ${dailyProteinGoal}`;
+        const caloriePercentage = (totalConsumedCalories / dailyCalorieGoal) * 100;
+        document.getElementById('calorieInfoFill').style.width = caloriePercentage + '%';
+        document.getElementById('calorieInfoFill').textContent = `Total consumed calories: ${totalConsumedCalories} / ${dailyCalorieGoal}`;
+
+        const fatPercentage = (totalConsumedFat / dailyFatGoal) * 100;
+        document.getElementById('fatInfoFill').style.width = fatPercentage + '%';
+        document.getElementById('fatInfoFill').textContent = `Total consumed fat: ${totalConsumedFat} / ${dailyFatGoal}`;
+
+        const sugarPercentage = (totalConsumedSugar / dailySugarGoal) * 100;
+        document.getElementById('sugarInfoFill').style.width = sugarPercentage + '%';
+        document.getElementById('sugarInfoFill').textContent = `Total consumed sugar: ${totalConsumedSugar} / ${dailySugarGoal}`;
+
+        const proteinPercentage = (totalConsumedProtein / dailyProteinGoal) * 100;
+        document.getElementById('proteinInfoFill').style.width = proteinPercentage + '%';
+        document.getElementById('proteinInfoFill').textContent = `Total consumed protein: ${totalConsumedProtein} / ${dailyProteinGoal}`;
+      }
+
+            // Enable or disable the "Start List" button based on input fields
+        function updateStartListButton() {
+          const inputs = [dailyCalorieGoalInput, dailyProteinGoalInput, dailySugarGoalInput, dailyFatGoalInput];
+          const isEmpty = inputs.some(input => input.value.trim() === '');
+          showListButton.disabled = isEmpty;
         }
 
-        // Function to handle adding a food item to the list
+        // Add event listeners to input fields
+        dailyCalorieGoalInput.addEventListener('input', updateStartListButton);
+        dailyProteinGoalInput.addEventListener('input', updateStartListButton);
+        dailySugarGoalInput.addEventListener('input', updateStartListButton);
+        dailyFatGoalInput.addEventListener('input', updateStartListButton);
+
+
+
         function addToFoodList(name, calories, fat, sugar, protein) {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${name} - ${calories} calories, ${fat}g fat, ${sugar}g sugar, ${protein}g protein`;
-            foodList.appendChild(listItem);
+        const parsedQuantity = parseInt(quantity.value) || 1; // Get quantity from input
 
-            // Update total consumed values
-            totalConsumedCalories += parseInt(calories);
-            totalConsumedFat += parseFloat(fat);
-            totalConsumedSugar += parseFloat(sugar);
-            totalConsumedProtein += parseFloat(protein);
+        const listItem = document.createElement('li');
+        listItem.textContent = `${parsedQuantity} x ${name} - ${calories * parsedQuantity} calories, ${protein * parsedQuantity}g protein, ${sugar * parsedQuantity}g sugar, ${fat * parsedQuantity}g fat`;
+        foodList.appendChild(listItem);
 
-            // Update calorie information
-            updateCalorieInfo();
+        // Update total consumed values with quantity considered
+        totalConsumedCalories += parseInt(calories) * parsedQuantity;
+        totalConsumedFat += parseFloat(fat) * parsedQuantity;
+        totalConsumedSugar += parseFloat(sugar) * parsedQuantity;
+        totalConsumedProtein += parseFloat(protein) * parsedQuantity;
+
+        // Update calorie information
+        updateCalorieInfo();
         }
+
+
+         // Add event listener to toggle button
+      toggleButton.addEventListener('click', function () {
+        // Toggle the display property of the food list
+        if (foodList.style.display === 'none') {
+          foodList.style.display = 'block';
+        } else {
+          foodList.style.display = 'none';
+        }
+      });
+
 
         function handleScan(data) {
             if (data) {
@@ -213,7 +290,7 @@
         });
 
         // Handle "Add to List" button click
-        addToListButton.addEventListener('click', function () {
+        showListButton.addEventListener('click', function () {
             handleManualEntry();
             resetCalorieInputs();
 
@@ -222,15 +299,28 @@
             proteinInput.style.display = 'block';
             sugarInput.style.display = 'block';
             fatInput.style.display = 'block';
+            quantity.style.display = 'block';
+            scanQRButton.style.display = 'block';
+            toggleButton.style.display = 'block';
+            addToListButton.style.display = 'block';
+        });
+
+        // Handle "Add to List" button click
+        addToListButton.addEventListener('click', function () {
+            handleManualEntry();
+            resetCalorieInputs();
+
         });
 
         // Function to reset calorie inputs and hide daily goal inputs
         function resetCalorieInputs() {
+            showListButton.style.display = 'none';
             foodNameInput.value = '';
             caloriesInput.value = '';
             proteinInput.value = '';
             sugarInput.value = '';
             fatInput.value = '';
+            quantity.value = '';
             dailyCalorieGoalInput.value = '';
             dailyCalorieGoalInput.style.display = 'none';
             dailyProteinGoalInput.value = '';
