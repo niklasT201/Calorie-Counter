@@ -114,28 +114,27 @@
     <input type="number" id="quantity" placeholder="Enter quantity" style="display: none;">
     <button id="scanQR" style="display: none">Scan QR Code</button>
     <div id="qrScanner" style="display: none;">
-      <!-- This will be the container for the QR scanner -->
+      <!-- container for the QR scanner -->
       <video id="scannerVideo" playsinline></video>
     </div>
+    <!-- Maybe use it later again -->
+    <!-- <input type="number" id="countdownTimeInput" placeholder="Enter countdown time (minutes)"> -->
+    <p id="calorieCountdown">24:00:00</p>
     <button id="showlist" disabled>Start List</button>
     <button id="addToList" style="display: none">Add to List</button>
     <button id="toggleList" style="display: none">Toggle List</button>
     <ul id="foodList" style="display: none;"></ul>
     <div id="calorieInfo" class="progress-bar">
       <div id="calorieInfoFill" class="progress-bar-fill">Calories:</div>
-     <!--  <div id="calorieInfoText" class="progress-bar-text"></div> -->
     </div>
     <div id="proteinInfo" class="progress-bar">
       <div id="proteinInfoFill" class="progress-bar-fill">Protein:</div>
-      <!-- <div id="proteinInfoText" class="progress-bar-text"></div> -->
     </div>
     <div id="sugarInfo" class="progress-bar">
       <div id="sugarInfoFill" class="progress-bar-fill">Sugar:</div>
-      <!-- <div id="sugarInfoText" class="progress-bar-text"></div> -->
     </div>
     <div id="fatInfo" class="progress-bar">
       <div id="fatInfoFill" class="progress-bar-fill">Fat:</div>
-     <!--  <div id="fatInfoText" class="progress-bar-text"></div> -->
     </div>
   </div>
 
@@ -169,13 +168,33 @@
         let totalConsumedFat = 0;
         let totalConsumedSugar = 0;
         let totalConsumedProtein = 0;
+        let totalConsumedCalories = 0;
         let dailyFatGoal = 0;
         let dailySugarGoal = 0;
         let dailyProteinGoal = 0;
         let dailyCalorieGoal = 0; // Added this line
 
-        // Variable to store the total consumed calories
-        let totalConsumedCalories = 0;
+        // Function to update and display the countdown timer
+        function updateCountdownTimer(targetTime) {
+    let timeLeft = targetTime;
+    let timerInterval = setInterval(function() {
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('calorieCountdown').textContent = "Time Up!";
+      } else {
+        let hours = Math.floor(timeLeft / 3600);
+        let minutes = Math.floor((timeLeft % 3600) / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById('calorieCountdown').textContent =
+          (hours ? (hours < 10 ? "0" + hours : hours) + ":" : "") +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds);
+        timeLeft -= 1;
+      }
+    }, 1000);
+  }
+
+  
 
         // Function to update the calorie information
         function updateCalorieInfo() {
@@ -293,6 +312,8 @@
         showListButton.addEventListener('click', function () {
             handleManualEntry();
             resetCalorieInputs();
+            let targetTimeInSeconds = 24 * 60 * 60;
+            updateCountdownTimer(targetTimeInSeconds); // Start countdown for 30 seconds
 
             foodNameInput.style.display = 'block';
             caloriesInput.style.display = 'block';
