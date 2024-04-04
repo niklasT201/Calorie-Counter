@@ -81,6 +81,27 @@
         const sugarInfo = document.getElementById('sugarInfo');
         const proteinInfo = document.getElementById('proteinInfo');
 
+        const storedCalorieGoal = localStorage.getItem('dailyCalorieGoal');
+        const storedProteinGoal = localStorage.getItem('dailyProteinGoal');
+        const storedSugarGoal = localStorage.getItem('dailySugarGoal');
+        const storedFatGoal = localStorage.getItem('dailyFatGoal');
+
+        // Check if any goal is stored
+        const hasStoredGoals = storedCalorieGoal || storedProteinGoal || storedSugarGoal || storedFatGoal;
+
+        if (hasStoredGoals) {
+        // when Values exist
+            let dailyFatGoal = 0;
+            let dailySugarGoal = 0;
+            let dailyProteinGoal = 0;
+            let dailyCalorieGoal = 0;
+       
+
+      } else {
+        // when values not exist
+       
+      }
+
 
 
         const container = document.getElementById('container');
@@ -211,14 +232,14 @@
 
 
          // Add event listener to toggle button
-      toggleButton.addEventListener('click', function () {
-        // Toggle the display property of the food list
-        if (foodList.style.display === 'none') {
-          foodList.style.display = 'block';
-        } else {
-          foodList.style.display = 'none';
-        }
-      });
+        toggleButton.addEventListener('click', function () {
+          // Toggle the display property of the food list
+          if (foodList.style.display === 'none') {
+            foodList.style.display = 'block';
+          } else {
+            foodList.style.display = 'none';
+          }
+        });
 
 
         function handleScan(data) {
@@ -240,6 +261,12 @@
             if (name && calories && fat && sugar && protein) {
                 addToFoodList(name, calories, fat, sugar, protein);
             }
+
+            localStorage.setItem('dailyCalorieGoal', dailyCalorieGoalInput.value);
+            localStorage.setItem('dailyProteinGoal', dailyProteinGoalInput.value);
+            localStorage.setItem('dailyFatGoal', dailyFatGoalInput.value);
+            localStorage.setItem('dailySugarGoal', dailySugarGoalInput.value);
+  
         }
 
         function handleError(err) {
@@ -272,6 +299,7 @@
 
         // Handle "Add to List" button click
         showListButton.addEventListener('click', function () {
+          if (!localStorage.getItem('dailyCalorieGoal')) {
             handleManualEntry();
             resetCalorieInputs();
             let targetTimeInSeconds = 24 * 60 * 60;
@@ -287,6 +315,7 @@
             toggleButton.style.display = 'block';
             addToListButton.style.display = 'block';
             switchButton.style.display = 'block';
+          }
         });
 
         // Handle "Add to List" button click
