@@ -3,103 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
   <title>Calorie Tracker</title>
   <style>
-     body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    #container {
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      text-align: center;
-      width: 400px; /* Fixed width */
-      height: auto; /* Adjust height as needed */
-      overflow-y: auto; /* Add scroll bar if content exceeds height */
-    }
-    h1 {
-      margin-top: 0;
-    }
-    input {
-      width: calc(50% - 5px);
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    .full-width {
-      width: 100%;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4caf50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    #qrScanner {
-      margin-top: 20px;
-    }
-    video {
-      width: 100%;
-      height: auto;
-      border-radius: 5px;
-    }
-    #calorieInfo {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-
-    #fatInfo {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-
-    #sugarInfo {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-
-    #proteinInfo {
-      font-size: 18px;
-      margin-top: 20px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 20px;
-      background-color: #f0f0f0;
-      border-radius: 5px;
-      margin-top: 10px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background-color: #4caf50;
-      width: 100%;
-      text-overflow: ellipsis; /* Optional for long text */
-      white-space: nowrap;
-    }
+     
   </style>
 </head>
 <body>
   <div id="container">
+    <div id="input-section">
     <h1>Calorie Tracker</h1>
   
     <input type="number" id="dailyCalorieGoal" placeholder="Enter your daily calorie goal">
@@ -122,20 +34,27 @@
     <p id="calorieCountdown">24:00:00</p>
     <button id="showlist" disabled>Start List</button>
     <button id="addToList" style="display: none">Add to List</button>
+  </div>
+ 
+    <div id="progress-section">
+      <h1>Your Daily Progress</h1>
+      <div id="calorieInfo" class="progress-bar">
+        <div id="calorieInfoFill" class="progress-bar-fill">Calories:</div>
+      </div>
+      <div id="proteinInfo" class="progress-bar">
+        <div id="proteinInfoFill" class="progress-bar-fill">Protein:</div>
+      </div>
+      <div id="sugarInfo" class="progress-bar">
+        <div id="sugarInfoFill" class="progress-bar-fill">Sugar:</div>
+      </div>
+      <div id="fatInfo" class="progress-bar">
+        <div id="fatInfoFill" class="progress-bar-fill">Fat:</div>
+      </div>
+      <ul id="foodList" style="display: none;"></ul>
     <button id="toggleList" style="display: none">Toggle List</button>
-    <ul id="foodList" style="display: none;"></ul>
-    <div id="calorieInfo" class="progress-bar">
-      <div id="calorieInfoFill" class="progress-bar-fill">Calories:</div>
     </div>
-    <div id="proteinInfo" class="progress-bar">
-      <div id="proteinInfoFill" class="progress-bar-fill">Protein:</div>
-    </div>
-    <div id="sugarInfo" class="progress-bar">
-      <div id="sugarInfoFill" class="progress-bar-fill">Sugar:</div>
-    </div>
-    <div id="fatInfo" class="progress-bar">
-      <div id="fatInfoFill" class="progress-bar-fill">Fat:</div>
-    </div>
+    <button id="switchButton" style="display: none">View Progress</button>
+
   </div>
 
   <script>
@@ -162,6 +81,32 @@
         const sugarInfo = document.getElementById('sugarInfo');
         const proteinInfo = document.getElementById('proteinInfo');
 
+
+
+        const container = document.getElementById('container');
+        const inputSection = document.getElementById('input-section');
+        const progressSection = document.getElementById('progress-section');
+        const switchButton = document.getElementById('switchButton');
+
+
+        let isProgressVisible = false;
+
+        switchButton.addEventListener('click', function() {
+          isProgressVisible = !isProgressVisible;
+
+          if (!isProgressVisible) {
+            switchButton.textContent = "View Progress";
+            inputSection.style.display = "block";
+            progressSection.style.display = "none";
+          } else {
+            switchButton.textContent = "View Input";
+            progressSection.style.display = "block";
+            inputSection.style.display = "none";
+          }
+        });
+
+
+
         let scanning = false;
 
         // Variable to store the daily calorie goal
@@ -176,23 +121,40 @@
 
         // Function to update and display the countdown timer
         function updateCountdownTimer(targetTime) {
-    let timeLeft = targetTime;
-    let timerInterval = setInterval(function() {
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        document.getElementById('calorieCountdown').textContent = "Time Up!";
-      } else {
-        let hours = Math.floor(timeLeft / 3600);
-        let minutes = Math.floor((timeLeft % 3600) / 60);
-        let seconds = timeLeft % 60;
-        document.getElementById('calorieCountdown').textContent =
-          (hours ? (hours < 10 ? "0" + hours : hours) + ":" : "") +
-          (minutes < 10 ? "0" + minutes : minutes) + ":" +
-          (seconds < 10 ? "0" + seconds : seconds);
-        timeLeft -= 1;
+        let timeLeft = targetTime;
+        let timerInterval = setInterval(function() {
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('calorieCountdown').textContent = "Time Up!";
+
+            // Reset timer to 24 hours
+            targetTime = 24 * 60 * 60; // 24 hours in seconds
+            updateCountdownTimer(targetTime); // Restart timer
+            
+            // Reset daily goals to zero on timer completion
+            resetDailyGoals(); 
+          } else {
+            let hours = Math.floor(timeLeft / 3600);
+            let minutes = Math.floor((timeLeft % 3600) / 60);
+            let seconds = timeLeft % 60;
+            document.getElementById('calorieCountdown').textContent =
+              (hours ? (hours < 10 ? "0" + hours : hours) + ":" : "") +
+              (minutes < 10 ? "0" + minutes : minutes) + ":" +
+              (seconds < 10 ? "0" + seconds : seconds);
+            timeLeft -= 1;
+          }
+        }, 1000);
       }
-    }, 1000);
-  }
+
+        // Function to reset daily goals to zero
+        function resetDailyGoals() {
+          // Update your existing code to set all daily goal input values to zero
+          totalConsumedCalories = 0;
+          totalConsumedProtein = 0;
+          totalConsumedSugar = 0;
+          totalConsumedFat = 0;
+          updateCalorieInfo(); 
+        }
 
   
 
@@ -321,9 +283,10 @@
             sugarInput.style.display = 'block';
             fatInput.style.display = 'block';
             quantity.style.display = 'block';
-            scanQRButton.style.display = 'block';
+           /*  scanQRButton.style.display = 'block'; */
             toggleButton.style.display = 'block';
             addToListButton.style.display = 'block';
+            switchButton.style.display = 'block';
         });
 
         // Handle "Add to List" button click
