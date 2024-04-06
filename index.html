@@ -53,7 +53,8 @@
       <ul id="foodList" style="display: none;"></ul>
     <button id="toggleList" style="display: none">Toggle List</button>
     </div>
-    <button id="switchButton" style="display: none">View Progress</button>
+    <button id="switchButton">View Progress</button>
+    <button id="clearGoalsButton">Clear Daily Goals</button>
 
   </div>
 
@@ -80,38 +81,94 @@
         const fatInfo = document.getElementById('fatInfo');
         const sugarInfo = document.getElementById('sugarInfo');
         const proteinInfo = document.getElementById('proteinInfo');
-
-        const storedCalorieGoal = localStorage.getItem('dailyCalorieGoal');
-        const storedProteinGoal = localStorage.getItem('dailyProteinGoal');
-        const storedSugarGoal = localStorage.getItem('dailySugarGoal');
-        const storedFatGoal = localStorage.getItem('dailyFatGoal');
-
-        // Check if any goal is stored
-        const hasStoredGoals = storedCalorieGoal || storedProteinGoal || storedSugarGoal || storedFatGoal;
-
-        if (hasStoredGoals) {
-        // when Values exist
-            let dailyFatGoal = 0;
-            let dailySugarGoal = 0;
-            let dailyProteinGoal = 0;
-            let dailyCalorieGoal = 0;
-       
-
-      } else {
-        // when values not exist
-       
-      }
-
-
-
-        const container = document.getElementById('container');
         const inputSection = document.getElementById('input-section');
         const progressSection = document.getElementById('progress-section');
         const switchButton = document.getElementById('switchButton');
 
 
         let isProgressVisible = false;
+        let scanning = false;
 
+        
+        const storedCalorieGoal = localStorage.getItem('dailyCalorieGoal');
+        const storedProteinGoal = localStorage.getItem('dailyProteinGoal');
+        const storedSugarGoal = localStorage.getItem('dailySugarGoal');
+        const storedFatGoal = localStorage.getItem('dailyFatGoal');
+
+        // Check if stored values exist and assign them to variables
+        dailyCalorieGoal = storedCalorieGoal ? parseInt(storedCalorieGoal) : 0;
+        dailyProteinGoal = storedProteinGoal ? parseInt(storedProteinGoal) : 0;
+        dailySugarGoal = storedSugarGoal ? parseInt(storedSugarGoal) : 0;
+        dailyFatGoal = storedFatGoal ? parseInt(storedFatGoal) : 0;
+
+
+        let totalConsumedCalories = localStorage.getItem('totalCalories') ? parseInt(localStorage.getItem('totalCalories')) : 0;
+        let totalConsumedFat = localStorage.getItem('totalFat') ? parseFloat(localStorage.getItem('totalFat')) : 0;
+        let totalConsumedSugar = localStorage.getItem('totalSugar') ? parseFloat(localStorage.getItem('totalSugar')) : 0;
+        let totalConsumedProtein = localStorage.getItem('totalProtein') ? parseFloat(localStorage.getItem('totalProtein')) : 0;
+
+
+        const clearGoalsButton = document.getElementById('clearGoalsButton');
+
+        clearGoalsButton.addEventListener('click', function () {
+          localStorage.removeItem('dailyCalorieGoal');
+          localStorage.removeItem('dailyProteinGoal');
+          localStorage.removeItem('dailySugarGoal');
+          localStorage.removeItem('dailyFatGoal');
+
+          localStorage.removeItem('totalCalories');
+          localStorage.removeItem('totalFat');
+          localStorage.removeItem('totalSugar');
+          localStorage.removeItem('totalProtein');
+
+          // Optionally, reset any UI elements that displayed the stored values
+          dailyCalorieGoalInput.value = '';
+          dailyProteinGoalInput.value = '';
+          dailySugarGoalInput.value = '';
+          dailyFatGoalInput.value = '';
+        });
+
+
+
+        // Check if any goal is stored
+        const hasStoredGoals = storedCalorieGoal || storedProteinGoal || storedSugarGoal || storedFatGoal;
+
+        if (hasStoredGoals) {
+          // when Values exist
+          switchButton.style.display = 'block';
+          foodNameInput.style.display = 'block';
+          caloriesInput.style.display = 'block';
+          proteinInput.style.display = 'block';
+          sugarInput.style.display = 'block';
+          fatInput.style.display = 'block';
+          quantity.style.display = 'block';
+          addToListButton.style.display = 'block';
+          toggleButton.style.display = 'block';
+          showListButton.style.display = 'none';
+         
+         // Hide daily goal input fields
+          dailyCalorieGoalInput.style.display = 'none';
+          dailyProteinGoalInput.style.display = 'none';
+          dailySugarGoalInput.style.display = 'none';
+          dailyFatGoalInput.style.display = 'none';
+
+          console.log("Halllo");
+        } else {
+          // when values not exist
+          // Hide input fields and "Add to List" button
+          foodNameInput.style.display = 'none';
+          caloriesInput.style.display = 'none';
+          proteinInput.style.display = 'none';
+          sugarInput.style.display = 'none';
+          fatInput.style.display = 'none';
+          quantity.style.display = 'none';
+          addToListButton.style.display = 'none';
+          showListButton.style.display = 'block';
+          switchButton.style.display = 'none';
+
+          console.log("NOPE");
+        }
+        
         switchButton.addEventListener('click', function() {
           isProgressVisible = !isProgressVisible;
 
@@ -119,26 +176,33 @@
             switchButton.textContent = "View Progress";
             inputSection.style.display = "block";
             progressSection.style.display = "none";
+
           } else {
             switchButton.textContent = "View Input";
             progressSection.style.display = "block";
             inputSection.style.display = "none";
+
+            // Retrieve daily goals from localStorage
+            dailyCalorieGoal = parseInt(localStorage.getItem('dailyCalorieGoal')) || 0;
+            dailyProteinGoal = parseInt(localStorage.getItem('dailyProteinGoal')) || 0;
+            dailySugarGoal = parseInt(localStorage.getItem('dailySugarGoal')) || 0;
+            dailyFatGoal = parseInt(localStorage.getItem('dailyFatGoal')) || 0;
+
+            // Update UI elements with retrieved goals
+            dailyCalorieGoalInput.value = dailyCalorieGoal;  // Set the value of the input field
+            dailyProteinGoalInput.value = dailyProteinGoal;
+            dailySugarGoalInput.value = dailySugarGoal;
+            dailyFatGoalInput.value = dailyFatGoal;
+
           }
+
+          // Ensure daily goal inputs remain hidden when switching views
+          dailyCalorieGoalInput.style.display = 'none';
+          dailyProteinGoalInput.style.display = 'none';
+          dailySugarGoalInput.style.display = 'none';
+          dailyFatGoalInput.style.display = 'none';
         });
 
-
-
-        let scanning = false;
-
-        // Variable to store the daily calorie goal
-        let totalConsumedFat = 0;
-        let totalConsumedSugar = 0;
-        let totalConsumedProtein = 0;
-        let totalConsumedCalories = 0;
-        let dailyFatGoal = 0;
-        let dailySugarGoal = 0;
-        let dailyProteinGoal = 0;
-        let dailyCalorieGoal = 0; // Added this line
 
         // Function to update and display the countdown timer
         function updateCountdownTimer(targetTime) {
@@ -211,35 +275,67 @@
         dailySugarGoalInput.addEventListener('input', updateStartListButton);
         dailyFatGoalInput.addEventListener('input', updateStartListButton);
 
-
+      
 
         function addToFoodList(name, calories, fat, sugar, protein) {
-        const parsedQuantity = parseInt(quantity.value) || 1; // Get quantity from input
+          const parsedQuantity = parseInt(quantity.value) || 1; // Get quantity from input
 
-        const listItem = document.createElement('li');
-        listItem.textContent = `${parsedQuantity} x ${name} - ${calories * parsedQuantity} calories, ${protein * parsedQuantity}g protein, ${sugar * parsedQuantity}g sugar, ${fat * parsedQuantity}g fat`;
-        foodList.appendChild(listItem);
+          const listItem = document.createElement('li');
+          listItem.textContent = `${parsedQuantity} x ${name} - ${calories * parsedQuantity} calories, ${protein * parsedQuantity}g protein, ${sugar * parsedQuantity}g sugar, ${fat * parsedQuantity}g fat`;
+          foodList.appendChild(listItem);
 
-        // Update total consumed values with quantity considered
-        totalConsumedCalories += parseInt(calories) * parsedQuantity;
-        totalConsumedFat += parseFloat(fat) * parsedQuantity;
-        totalConsumedSugar += parseFloat(sugar) * parsedQuantity;
-        totalConsumedProtein += parseFloat(protein) * parsedQuantity;
+          // Update total consumed values with quantity considered
+          totalConsumedCalories += parseInt(calories) * parsedQuantity;
+          totalConsumedFat += parseFloat(fat) * parsedQuantity;
+          totalConsumedSugar += parseFloat(sugar) * parsedQuantity;
+          totalConsumedProtein += parseFloat(protein) * parsedQuantity;
+          
+          // Update localStorage with new totals
+          localStorage.setItem('totalCalories', totalConsumedCalories);
+          localStorage.setItem('totalFat', totalConsumedFat);
+          localStorage.setItem('totalSugar', totalConsumedSugar);
+          localStorage.setItem('totalProtein', totalConsumedProtein);
 
-        // Update calorie information
-        updateCalorieInfo();
+          // Update calorie information
+          updateCalorieInfo();
+
+          // Store food information in localStorage (replace with unique key)
+          const foodEntry = {
+            name,
+            calories: parseInt(calories),
+            protein: parseFloat(protein),
+            sugar: parseFloat(sugar),
+            fat: parseFloat(fat),
+            quantity: parsedQuantity
+          };
+          localStorage.setItem(`food-${Date.now()}`, JSON.stringify(foodEntry)); // Create unique key
         }
 
 
-         // Add event listener to toggle button
-        toggleButton.addEventListener('click', function () {
+
+         toggleButton.addEventListener('click', function () {
           // Toggle the display property of the food list
           if (foodList.style.display === 'none') {
             foodList.style.display = 'block';
+
+            // Retrieve food entries from localStorage
+            const foodListEntries = [];
+            for (let i = 0; localStorage.getItem(`food-${i}`); i++) {
+              const storedFoodEntry = JSON.parse(localStorage.getItem(`food-${i}`));
+              foodListEntries.push(storedFoodEntry);
+            }
+
+            // Display retrieved food entries in the list
+            for (const entry of foodListEntries) {
+              const listItem = document.createElement('li');
+              listItem.textContent = `${entry.quantity}x ${entry.name} - ${entry.calories * entry.quantity} calories, ${entry.protein * entry.quantity}g protein, ${entry.sugar * entry.quantity}g sugar, ${entry.fat * entry.quantity}g fat`;
+              foodList.appendChild(listItem);
+            }
           } else {
             foodList.style.display = 'none';
           }
         });
+
 
 
         function handleScan(data) {
@@ -252,6 +348,25 @@
             }
         }
 
+
+        function saveDailyGoals(calorieGoal, proteinGoal, fatGoal, sugarGoal) {
+            try {
+                localStorage.setItem('dailyCalorieGoal', calorieGoal);
+                localStorage.setItem('dailyProteinGoal', proteinGoal);
+                localStorage.setItem('dailyFatGoal', fatGoal);
+                localStorage.setItem('dailySugarGoal', sugarGoal);
+                console.log('Daily goals saved successfully!');
+                console.log('Calorie Goal:', calorieGoal);
+                console.log('Protein Goal:', proteinGoal);
+                console.log('Fat Goal:', fatGoal);
+                console.log('Sugar Goal:', sugarGoal);
+            } catch (error) {
+                console.error('Error saving daily goals to localStorage:', error);
+            }
+        }
+
+
+
         function handleManualEntry() {
             const name = foodNameInput.value.trim();
             const calories = caloriesInput.value.trim();
@@ -261,49 +376,34 @@
             if (name && calories && fat && sugar && protein) {
                 addToFoodList(name, calories, fat, sugar, protein);
             }
-
-            localStorage.setItem('dailyCalorieGoal', dailyCalorieGoalInput.value);
-            localStorage.setItem('dailyProteinGoal', dailyProteinGoalInput.value);
-            localStorage.setItem('dailyFatGoal', dailyFatGoalInput.value);
-            localStorage.setItem('dailySugarGoal', dailySugarGoalInput.value);
-  
-        }
+          }
 
         function handleError(err) {
             console.error(err);
         }
 
-        // Handle daily calorie goal input field blur event
-        dailyCalorieGoalInput.addEventListener('blur', function () {
-            dailyCalorieGoal = parseInt(dailyCalorieGoalInput.value) || 0;
-            updateCalorieInfo();
-        });
-
-        // Handle daily protein goal input field blur event
-        dailyProteinGoalInput.addEventListener('blur', function () {
-            dailyProteinGoal = parseInt(dailyProteinGoalInput.value) || 0;
-            updateCalorieInfo();
-        });
-
-        // Handle daily sugar goal input field blur event
-        dailySugarGoalInput.addEventListener('blur', function () {
-            dailySugarGoal = parseInt(dailySugarGoalInput.value) || 0;
-            updateCalorieInfo();
-        });
-
-        // Handle daily fat goal input field blur event
-        dailyFatGoalInput.addEventListener('blur', function () {
-            dailyFatGoal = parseInt(dailyFatGoalInput.value) || 0;
-            updateCalorieInfo();
-        });
-
-        // Handle "Add to List" button click
+        // Handle "Start the List" button click
         showListButton.addEventListener('click', function () {
           if (!localStorage.getItem('dailyCalorieGoal')) {
             handleManualEntry();
             resetCalorieInputs();
             let targetTimeInSeconds = 24 * 60 * 60;
             updateCountdownTimer(targetTimeInSeconds); // Start countdown for 30 seconds
+
+            const calorieGoal = dailyCalorieGoalInput.value;
+            const proteinGoal = dailyProteinGoalInput.value;
+            const fatGoal = dailyFatGoalInput.value;
+            const sugarGoal = dailySugarGoalInput.value;
+
+            saveDailyGoals(calorieGoal, proteinGoal, fatGoal, sugarGoal, function(saveSuccess) {
+              if (saveSuccess) {
+                console.log('Daily goals saved successfully!');
+                // Perform actions that depend on successful save (e.g., update UI)
+              } else {
+                console.error('Failed to save daily goals!');
+                // Handle save failure (e.g., show error message)
+              }
+            });
 
             foodNameInput.style.display = 'block';
             caloriesInput.style.display = 'block';
@@ -314,7 +414,6 @@
            /*  scanQRButton.style.display = 'block'; */
             toggleButton.style.display = 'block';
             addToListButton.style.display = 'block';
-            switchButton.style.display = 'block';
           }
         });
 
@@ -322,25 +421,21 @@
         addToListButton.addEventListener('click', function () {
             handleManualEntry();
             resetCalorieInputs();
-
         });
 
         // Function to reset calorie inputs and hide daily goal inputs
         function resetCalorieInputs() {
             showListButton.style.display = 'none';
+            toggleButton.style.display = 'block';
             foodNameInput.value = '';
             caloriesInput.value = '';
             proteinInput.value = '';
             sugarInput.value = '';
             fatInput.value = '';
             quantity.value = '';
-            dailyCalorieGoalInput.value = '';
             dailyCalorieGoalInput.style.display = 'none';
-            dailyProteinGoalInput.value = '';
             dailyProteinGoalInput.style.display = 'none';
-            dailySugarGoalInput.value = '';
             dailySugarGoalInput.style.display = 'none';
-            dailyFatGoalInput.value = '';
             dailyFatGoalInput.style.display = 'none';
         }
 
