@@ -54,6 +54,8 @@
     <button id="toggleList" style="display: none">Toggle List</button>
     </div>
     <button id="switchButton">View Progress</button>
+    <button id="clicksButton" style="display: none;">Continue/Clear</button>
+    <button id="continueButton" style="display: none;">Continue</button>
     <button id="clearGoalsButton" style="display: none;">Clear Daily Goals</button>
 
   </div>
@@ -84,6 +86,8 @@
         const inputSection = document.getElementById('input-section');
         const progressSection = document.getElementById('progress-section');
         const switchButton = document.getElementById('switchButton');
+        const clicksButton = document.getElementById('clicksButton');
+        const continueButton = document.getElementById('continueButton');
 
 
         let isProgressVisible = false;
@@ -175,9 +179,11 @@
           if (timeLeft <= 0) {
             clearInterval(timerInterval);
             document.getElementById('calorieCountdown').textContent = "Time Up!";
+            clicksButton.style.display = 'block';
 
             // Reset timer to 24 hours
             targetTime = 24 * 60 * 60; // 24 hours in seconds
+            localStorage.removeItem("startTime");
             updateCountdownTimer(targetTime); // Restart timer
             
             // Reset daily goals to zero on timer completion
@@ -195,41 +201,52 @@
         }, 1000);
       }
 
-   if (localStorage.getItem("startTime")) {
-      updateCountdownTimer(24 * 60 * 60); // Start the timer with initial target time
-    }
+      if (localStorage.getItem("startTime")) {
+          updateCountdownTimer(24 * 60 * 60); // Start the timer with initial target time
+        }
 
       let timerInterval; // Define timerInterval outside the function for access later
 
-// Function to start the countdown timer
-function startCountdownTimer(targetTime) {
-    timerInterval = setInterval(function () {
-        updateCountdownTimer(targetTime);
-    }, 1000);
-}
+      // Function to start the countdown timer
+      function startCountdownTimer(targetTime) {
+          timerInterval = setInterval(function () {
+              updateCountdownTimer(targetTime);
+          }, 1000);
+      }
 
       const clearGoalsButton = document.getElementById('clearGoalsButton');
 
-clearGoalsButton.addEventListener('click', function () {
-  localStorage.removeItem('dailyCalorieGoal');
-  localStorage.removeItem('dailyProteinGoal');
-  localStorage.removeItem('dailySugarGoal');
-  localStorage.removeItem('dailyFatGoal');
+      clearGoalsButton.addEventListener('click', function () {
+        localStorage.removeItem('dailyCalorieGoal');
+        localStorage.removeItem('dailyProteinGoal');
+        localStorage.removeItem('dailySugarGoal');
+        localStorage.removeItem('dailyFatGoal');
 
-  localStorage.removeItem('totalCalories');
-  localStorage.removeItem('totalFat');
-  localStorage.removeItem('totalSugar');
-  localStorage.removeItem('totalProtein');
+        localStorage.removeItem('totalCalories');
+        localStorage.removeItem('totalFat');
+        localStorage.removeItem('totalSugar');
+        localStorage.removeItem('totalProtein');
 
-  stopCountdownTimer(); // Stop the countdown timer
+        stopCountdownTimer(); // Stop the countdown timer
 
 
-  // Optionally, reset any UI elements that displayed the stored values
-  dailyCalorieGoalInput.value = '';
-  dailyProteinGoalInput.value = '';
-  dailySugarGoalInput.value = '';
-  dailyFatGoalInput.value = '';
-});
+        // Optionally, reset any UI elements that displayed the stored values
+        dailyCalorieGoalInput.value = '';
+        dailyProteinGoalInput.value = '';
+        dailySugarGoalInput.value = '';
+        dailyFatGoalInput.value = '';
+      });
+
+      clicksButton.addEventListener('click', function () {
+        clearGoalsButton.style.display = 'block';
+        continueButton.style.display = 'block';
+        clicksButton.style.display = 'none';
+      });
+
+      continueButton.addEventListener('click', function () {
+        clearGoalsButton.style.display = 'none';
+        continueButton.style.display = 'none';
+      });
 
 
         // Function to reset daily goals to zero
@@ -239,10 +256,13 @@ clearGoalsButton.addEventListener('click', function () {
           totalConsumedProtein = 0;
           totalConsumedSugar = 0;
           totalConsumedFat = 0;
+
+          localStorage.setItem('totalCalories', totalConsumedCalories);
+          localStorage.setItem('totalFat', totalConsumedFat);
+          localStorage.setItem('totalSugar', totalConsumedSugar);
+          localStorage.setItem('totalProtein', totalConsumedProtein);
           updateCalorieInfo(); 
         }
-
-  
 
         // Function to update the calorie information
         function updateCalorieInfo() {
@@ -262,6 +282,8 @@ clearGoalsButton.addEventListener('click', function () {
         document.getElementById('proteinInfoFill').style.width = proteinPercentage + '%';
         document.getElementById('proteinInfoFill').textContent = `Total consumed protein: ${totalConsumedProtein} / ${dailyProteinGoal}`;
       }
+  
+
 
             // Enable or disable the "Start List" button based on input fields
         function updateStartListButton() {
